@@ -75,35 +75,7 @@ const Login = () => {
       setLoading(false);
     }
   };
-  // const handleRegister = async (e) => {
-  //   e.preventDefault();
-  //   setLoading(true);
-
-  //   const formData = new FormData(e.target);
-  //   const { username, email, password } = Object.fromEntries(formData);
-
-  //   try {
-  //     const res = await createUserWithEmailAndPassword(auth, email, password);
-
-  //     await setDoc(doc(db, "users", res.user.uid), {
-  //       username,
-  //       email,
-  //       id: res.user.uid,
-  //       blocked: [],
-  //     });
-
-  //     await setDoc(doc(db, "userchats", res.user.uid), {
-  //       chats: [],
-  //     });
-
-  //     toast.success("Account created! You can login now!");
-  //   } catch (err) {
-  //     console.log(err);
-  //     toast.error(err.message);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);

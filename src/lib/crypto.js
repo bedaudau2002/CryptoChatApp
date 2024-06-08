@@ -20,7 +20,7 @@ const privateKeyPem = fs.readFileSync(
   "utf8"
 );
 // Encrypt a message using RSA and AES
-function encryptMessage(message) {
+function encryptMessage(message, publicKey) {
   const aesKey = forge.random.getBytesSync(32);
   const iv = forge.random.getBytesSync(16);
 
@@ -31,7 +31,7 @@ function encryptMessage(message) {
 
   const encryptedMessage = cipher.output.getBytes();
 
-  const rsa = forge.pki.publicKeyFromPem(publicKeyPem);
+  const rsa = forge.pki.publicKeyFromPem(publicKey);
   const encryptedAesKey = rsa.encrypt(aesKey, "RSA-OAEP", {
     md: forge.md.sha1.create(),
   });
