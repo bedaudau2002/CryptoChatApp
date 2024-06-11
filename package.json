@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@chatereum/react-e2ee": "^3.0.1",
+    "crypto-js": "^4.2.0",
     "emoji-picker-react": "^4.9.2",
     "firebase": "^10.10.0",
     "nss": "^0.0.1",

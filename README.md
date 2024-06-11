@@ -1,6 +1,6 @@
-# Chat App Starter template
+# Chat App
 
-#install TLS Cert
+# install TLS Cert
 
 # Step: 1
 
@@ -25,3 +25,8 @@ mkcert -install
 # at the project root directory run the following command
 
 mkdir -p .cert && mkcert -key-file ./.cert/key.pem -cert-file ./.cert/cert.pem 'localhost'
+
+# E2EE
+
+source:https://www.npmjs.com/package/@chatereum/react-e2ee
+npm i @chatereum/react-e2ee

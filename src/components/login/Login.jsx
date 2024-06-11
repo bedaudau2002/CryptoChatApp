@@ -11,6 +11,8 @@ import upload from "../../lib/upload";
 import { collection } from "firebase/firestore";
 import { query } from "firebase/firestore";
 import { where } from "firebase/firestore";
+//import { generateKey } from "../../lib/crypto";
+import E2EE from '@chatereum/react-e2ee';
 const Login = () => {
   const [avatar, setAvatar] = useState({
     file: null,
@@ -29,6 +31,7 @@ const Login = () => {
     }
   };
 
+
   const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -41,7 +44,8 @@ const Login = () => {
       return toast.warn("Please enter inputs!");
     if (!avatar.file) 
       return toast.warn("Please upload an avatar!");
-
+    if (password.length < 6)
+      return toast.warn("Password must be at least 6 characters!");
     // VALIDATE UNIQUE USERNAME
     const usersRef = collection(db, "users");
     const q = query(usersRef, where("username", "==", username));
@@ -54,6 +58,10 @@ const Login = () => {
       const res = await createUserWithEmailAndPassword(auth, email, password);
 
       const imgUrl = await upload(avatar.file);
+      
+      const { publicKey, privateKey } = generateKey();
+      console.log(publicKey);
+      console.log(privateKey);
 
       await setDoc(doc(db, "users", res.user.uid), {
         username,
