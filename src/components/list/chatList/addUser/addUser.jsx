@@ -14,11 +14,20 @@ import {
 } from "firebase/firestore";
 import { useState } from "react";
 import { useUserStore } from "../../../../lib/userStore";
+// import { generateKeyPairSync } from 'crypto';
 
 const AddUser = () => {
   const [user, setUser] = useState(null);
 
   const { currentUser } = useUserStore();
+  // // Generate key pair
+  // const { publicKey, privateKey } = generateKeyPairSync('rsa', {
+  //   modulusLength: 2048,  // the length of your key in bits
+  // });
+
+  // // Convert keys to string format
+  // const publicKeyStr = publicKey.export({ type: 'pkcs1', format: 'pem' });
+  // const privateKeyStr = privateKey.export({ type: 'pkcs1', format: 'pem' });
 
   const handleSearch = async (e) => {
     e.preventDefault();
