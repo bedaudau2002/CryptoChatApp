@@ -6,7 +6,7 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { auth, db } from "../../lib/firebase";
-import { doc, setDoc,getDocs } from "firebase/firestore";
+import { doc, setDoc, getDocs } from "firebase/firestore";
 import upload from "../../lib/upload";
 import { collection } from "firebase/firestore";
 import { query } from "firebase/firestore";
@@ -23,7 +23,6 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   const handleAvatar = (e) => {
-    
     if (e.target.files[0]) {
       setAvatar({
         file: e.target.files[0],
@@ -31,7 +30,6 @@ const Login = () => {
       });
     }
   };
-
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -43,8 +41,7 @@ const Login = () => {
     // VALIDATE INPUTS
     if (!username || !email || !password)
       return toast.warn("Please enter inputs!");
-    if (!avatar.file) 
-      return toast.warn("Please upload an avatar!");
+    if (!avatar.file) return toast.warn("Please upload an avatar!");
     if (password.length < 6)
       return toast.warn("Password must be at least 6 characters!");
     // VALIDATE UNIQUE USERNAME
@@ -59,7 +56,6 @@ const Login = () => {
       const res = await createUserWithEmailAndPassword(auth, email, password);
 
       const imgUrl = await upload(avatar.file);
-      
 
       await setDoc(doc(db, "users", res.user.uid), {
         username,
@@ -81,7 +77,7 @@ const Login = () => {
       setLoading(false);
     }
   };
-  
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);

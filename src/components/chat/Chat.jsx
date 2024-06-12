@@ -13,7 +13,7 @@ import { useChatStore } from "../../lib/chatStore";
 import { useUserStore } from "../../lib/userStore";
 import upload from "../../lib/upload";
 import { format } from "timeago.js";
-import E2EE from '@chatereum/react-e2ee';
+import E2EE from "@chatereum/react-e2ee";
 
 const Chat = () => {
   const [chat, setChat] = useState([]);
@@ -22,7 +22,7 @@ const Chat = () => {
   const [img, setImg] = useState({
     file: null,
     url: "",
-  });//, setEncText} = useState("");
+  }); //, setEncText} = useState("");
 
   const { currentUser } = useUserStore();
   const { chatId, user, isCurrentUserBlocked, isReceiverBlocked } =
@@ -38,7 +38,7 @@ const Chat = () => {
     const unSub = onSnapshot(doc(db, "chats", chatId), (res) => {
       setChat(res.data());
     });
-    
+
     return () => {
       unSub();
     };
@@ -57,24 +57,24 @@ const Chat = () => {
       });
     }
   };
-  
+
   const handleSend = async () => {
     if (text === "") return;
 
     let imgUrl = null;
 
     try {
-    // Fetch the userchat document
-    // const userChatDoc = await getDoc(doc(db, "userchats", currentUser.id));
-    // console.log(userChatDoc.data());
-    // // Extract the public key
-    // const public_key = userChatDoc.data().;
-    // console.log(public_key);
-    //   encText = await E2EE.encryptPlaintext({
-    //     public_key: public_key, 
-    //     plain_text: text,
-    // });
-      
+      // Fetch the userchat document
+      // const userChatDoc = await getDoc(doc(db, "userchats", currentUser.id));
+      // console.log(userChatDoc.data());
+      // // Extract the public key
+      // const public_key = userChatDoc.data().;
+      // console.log(public_key);
+      //   encText = await E2EE.encryptPlaintext({
+      //     public_key: public_key,
+      //     plain_text: text,
+      // });
+
       if (img.file) {
         imgUrl = await upload(img.file);
       }
@@ -96,7 +96,7 @@ const Chat = () => {
           const userChatsData = userChatsSnapshot.data();
 
           const chatIndex = userChatsData.chats.findIndex(
-            (c) => c.chatId === chatId
+            (c) => c.chatId === chatId,
           );
           const encText = await E2EE.encryptPlaintext({
             public_key: userChatsData.chats[chatIndex].pubKey,
@@ -126,23 +126,17 @@ const Chat = () => {
           await updateDoc(userChatsRef, {
             chats: userChatsData.chats,
           });
-
-          
         }
-        
       });
-
-
-
     } catch (err) {
       console.log(err);
-    } finally{
-    setImg({
-      file: null,
-      url: "",
-    });
+    } finally {
+      setImg({
+        file: null,
+        url: "",
+      });
 
-    setText("");
+      setText("");
     }
   };
 

@@ -32,7 +32,7 @@ const ChatList = () => {
         const chatData = await Promise.all(promises);
 
         setChats(chatData.sort((a, b) => b.updatedAt - a.updatedAt));
-      }
+      },
     );
 
     return () => {
@@ -47,7 +47,7 @@ const ChatList = () => {
     });
 
     const chatIndex = userChats.findIndex(
-      (item) => item.chatId === chat.chatId
+      (item) => item.chatId === chat.chatId,
     );
 
     userChats[chatIndex].isSeen = true;
@@ -65,7 +65,7 @@ const ChatList = () => {
   };
 
   const filteredChats = chats.filter((c) =>
-    c.user.username.toLowerCase().includes(input.toLowerCase())
+    c.user.username.toLowerCase().includes(input.toLowerCase()),
   );
 
   return (
