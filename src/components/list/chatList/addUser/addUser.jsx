@@ -1,5 +1,6 @@
 import "./addUser.css";
 import { db } from "../../../../lib/firebase";
+
 import {
   arrayUnion,
   collection,
@@ -15,19 +16,14 @@ import {
 import { useState } from "react";
 import { useUserStore } from "../../../../lib/userStore";
 // import { generateKeyPairSync } from 'crypto';
+import E2EE from '@chatereum/react-e2ee';
 
 const AddUser = () => {
   const [user, setUser] = useState(null);
 
   const { currentUser } = useUserStore();
-  // // Generate key pair
-  // const { publicKey, privateKey } = generateKeyPairSync('rsa', {
-  //   modulusLength: 2048,  // the length of your key in bits
-  // });
-
-  // // Convert keys to string format
-  // const publicKeyStr = publicKey.export({ type: 'pkcs1', format: 'pem' });
-  // const privateKeyStr = privateKey.export({ type: 'pkcs1', format: 'pem' });
+  
+  
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -52,8 +48,19 @@ const AddUser = () => {
   const handleAdd = async () => {
     const chatRef = collection(db, "chats");
     const userChatsRef = collection(db, "userchats");
-
+    
     try {
+      //generation Keys
+      const Keys = await E2EE.getKeys();
+      //dowloading private key
+      const privateKey = Keys.private_key;
+      const privateKeyFile = new Blob([privateKey], { type: "text/plain" });
+      const url = URL.createObjectURL(privateKeyFile);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `privateKey_${currentUser}.txt`;
+      link.click();
+
       const newChatRef = doc(chatRef);
 
       await setDoc(newChatRef, {
@@ -64,6 +71,9 @@ const AddUser = () => {
       await updateDoc(doc(userChatsRef, user.id), {
         chats: arrayUnion({
           chatId: newChatRef.id,
+          pubKey:Keys.public_key,
+          AESKey:"",
+          iv:"",
           lastMessage: "",
           receiverId: currentUser.id,
           updatedAt: Date.now(),
@@ -73,6 +83,9 @@ const AddUser = () => {
       await updateDoc(doc(userChatsRef, currentUser.id), {
         chats: arrayUnion({
           chatId: newChatRef.id,
+          pubKey:Keys.public_key,
+          AESKey:"",
+          iv:"",
           lastMessage: "",
           receiverId: user.id,
           updatedAt: Date.now(),

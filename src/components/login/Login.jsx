@@ -12,7 +12,8 @@ import { collection } from "firebase/firestore";
 import { query } from "firebase/firestore";
 import { where } from "firebase/firestore";
 //import { generateKey } from "../../lib/crypto";
-import E2EE from '@chatereum/react-e2ee';
+// import E2EE from '@chatereum/react-e2ee';
+// import { hashMessageSHA256 } from 'crypto-js';
 const Login = () => {
   const [avatar, setAvatar] = useState({
     file: null,
@@ -59,9 +60,6 @@ const Login = () => {
 
       const imgUrl = await upload(avatar.file);
       
-      const { publicKey, privateKey } = generateKey();
-      console.log(publicKey);
-      console.log(privateKey);
 
       await setDoc(doc(db, "users", res.user.uid), {
         username,
@@ -70,7 +68,7 @@ const Login = () => {
         id: res.user.uid,
         blocked: [],
       });
-      console.log(res.user.uid);
+      //console.log(res.user.uid);
       await setDoc(doc(db, "userchats", res.user.uid), {
         chats: [],
       });

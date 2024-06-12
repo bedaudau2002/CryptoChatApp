@@ -28,5 +28,5 @@ mkdir -p .cert && mkcert -key-file ./.cert/key.pem -cert-file ./.cert/cert.pem '
 
 # E2EE
 
-source:https://www.npmjs.com/package/@chatereum/react-e2ee
+source: https://www.npmjs.com/package/@chatereum/react-e2ee
 npm i @chatereum/react-e2ee
