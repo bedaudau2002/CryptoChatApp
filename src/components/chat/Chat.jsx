@@ -98,7 +98,7 @@ const Chat = () => {
           const chatIndex = userChatsData.chats.findIndex(
             (c) => c.chatId === chatId
           );
-          encText = await E2EE.encryptPlaintext({
+          const encText = await E2EE.encryptPlaintext({
             public_key: userChatsData.chats[chatIndex].pubKey,
             plain_text: text,
           });
@@ -118,7 +118,7 @@ const Chat = () => {
           await updateDoc(doc(db, "chats", chatId), {
             messages: arrayUnion({
               senderId: currentUser.id,
-              text: encText.cipher_text,
+              text: encText,
               createdAt: new Date(),
               ...(imgUrl && { img: imgUrl }),
             }),
@@ -172,7 +172,7 @@ const Chat = () => {
           >
             <div className="texts">
               {message.img && <img src={message.img} alt="" />}
-              <p>{message.cipher_text}</p>
+              <p>{message.text.cipher_text}</p>
               <span>{format(message.createdAt.toDate())}</span>
             </div>
           </div>
