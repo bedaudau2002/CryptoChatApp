@@ -22,7 +22,7 @@ const Chat = () => {
   const [img, setImg] = useState({
     file: null,
     url: "",
-  }); //, setEncText} = useState("");
+  });
 
   const { currentUser } = useUserStore();
   const { chatId, user, isCurrentUserBlocked, isReceiverBlocked } =
@@ -64,28 +64,10 @@ const Chat = () => {
     let imgUrl = null;
 
     try {
-      // Fetch the userchat document
-      // const userChatDoc = await getDoc(doc(db, "userchats", currentUser.id));
-      // console.log(userChatDoc.data());
-      // // Extract the public key
-      // const public_key = userChatDoc.data().;
-      // console.log(public_key);
-      //   encText = await E2EE.encryptPlaintext({
-      //     public_key: public_key,
-      //     plain_text: text,
-      // });
-
       if (img.file) {
         imgUrl = await upload(img.file);
       }
-      // await updateDoc(doc(db, "chats", chatId), {
-      //   messages: arrayUnion({
-      //     senderId: currentUser.id,
-      //     //text: encText.cipher_text,
-      //     createdAt: new Date(),
-      //     ...(imgUrl && { img: imgUrl }),
-      //   }),
-      // });
+
       const userIDs = [currentUser.id, user.id];
 
       userIDs.forEach(async (id) => {
@@ -110,11 +92,6 @@ const Chat = () => {
             id === currentUser.id ? true : false;
           userChatsData.chats[chatIndex].updatedAt = Date.now();
 
-          // await updateDoc(doc(db, "chats", chatId), {
-          //   messages: arrayUnion({
-          //     text: encText.cipher_text,
-          //   }),
-          // });
           await updateDoc(doc(db, "chats", chatId), {
             messages: arrayUnion({
               senderId: currentUser.id,
