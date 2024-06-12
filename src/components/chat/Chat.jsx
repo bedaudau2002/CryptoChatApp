@@ -13,7 +13,7 @@ import { useChatStore } from "../../lib/chatStore";
 import { useUserStore } from "../../lib/userStore";
 import upload from "../../lib/upload";
 import { format } from "timeago.js";
-//import { encryptMessage } from "../../lib/crypto";
+import E2EE from '@chatereum/react-e2ee';
 
 const Chat = () => {
   const [chat, setChat] = useState([]);
@@ -22,7 +22,7 @@ const Chat = () => {
   const [img, setImg] = useState({
     file: null,
     url: "",
-  });
+  });//, setEncText} = useState("");
 
   const { currentUser } = useUserStore();
   const { chatId, user, isCurrentUserBlocked, isReceiverBlocked } =
@@ -57,26 +57,35 @@ const Chat = () => {
       });
     }
   };
-
+  
   const handleSend = async () => {
     if (text === "") return;
 
     let imgUrl = null;
 
     try {
+    // Fetch the userchat document
+    // const userChatDoc = await getDoc(doc(db, "userchats", currentUser.id));
+    // console.log(userChatDoc.data());
+    // // Extract the public key
+    // const public_key = userChatDoc.data().;
+    // console.log(public_key);
+    //   encText = await E2EE.encryptPlaintext({
+    //     public_key: public_key, 
+    //     plain_text: text,
+    // });
+      
       if (img.file) {
         imgUrl = await upload(img.file);
       }
-
-      await updateDoc(doc(db, "chats", chatId), {
-        messages: arrayUnion({
-          senderId: currentUser.id,
-          text,
-          createdAt: new Date(),
-          ...(imgUrl && { img: imgUrl }),
-        }),
-      });
-
+      // await updateDoc(doc(db, "chats", chatId), {
+      //   messages: arrayUnion({
+      //     senderId: currentUser.id,
+      //     //text: encText.cipher_text,
+      //     createdAt: new Date(),
+      //     ...(imgUrl && { img: imgUrl }),
+      //   }),
+      // });
       const userIDs = [currentUser.id, user.id];
 
       userIDs.forEach(async (id) => {
@@ -89,17 +98,42 @@ const Chat = () => {
           const chatIndex = userChatsData.chats.findIndex(
             (c) => c.chatId === chatId
           );
+          encText = await E2EE.encryptPlaintext({
+            public_key: userChatsData.chats[chatIndex].pubKey,
+            plain_text: text,
+          });
 
-          userChatsData.chats[chatIndex].lastMessage = text;
+          userChatsData.chats[chatIndex].lastMessage = encText.cipher_text;
+          userChatsData.chats[chatIndex].AESKey = encText.aes_key;
+          userChatsData.chats[chatIndex].iv = encText.iv;
           userChatsData.chats[chatIndex].isSeen =
             id === currentUser.id ? true : false;
           userChatsData.chats[chatIndex].updatedAt = Date.now();
 
+          // await updateDoc(doc(db, "chats", chatId), {
+          //   messages: arrayUnion({
+          //     text: encText.cipher_text,
+          //   }),
+          // });
+          await updateDoc(doc(db, "chats", chatId), {
+            messages: arrayUnion({
+              senderId: currentUser.id,
+              text: encText.cipher_text,
+              createdAt: new Date(),
+              ...(imgUrl && { img: imgUrl }),
+            }),
+          });
           await updateDoc(userChatsRef, {
             chats: userChatsData.chats,
           });
+
+          
         }
+        
       });
+
+
+
     } catch (err) {
       console.log(err);
     } finally{
@@ -138,7 +172,7 @@ const Chat = () => {
           >
             <div className="texts">
               {message.img && <img src={message.img} alt="" />}
-              <p>{message.text}</p>
+              <p>{message.cipher_text}</p>
               <span>{format(message.createdAt.toDate())}</span>
             </div>
           </div>
