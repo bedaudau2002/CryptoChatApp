@@ -11,9 +11,7 @@ import upload from "../../lib/upload";
 import { collection } from "firebase/firestore";
 import { query } from "firebase/firestore";
 import { where } from "firebase/firestore";
-//import { generateKey } from "../../lib/crypto";
-// import E2EE from '@chatereum/react-e2ee';
-// import { hashMessageSHA256 } from 'crypto-js';
+
 const Login = () => {
   const [avatar, setAvatar] = useState({
     file: null,

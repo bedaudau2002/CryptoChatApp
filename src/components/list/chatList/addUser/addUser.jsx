@@ -56,7 +56,7 @@ const AddUser = () => {
       const url = URL.createObjectURL(privateKeyFile);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `privateKey_${currentUser}.txt`;
+      link.download = `privateKey_${currentUser.username}.pem`;
       link.click();
 
       const newChatRef = doc(chatRef);

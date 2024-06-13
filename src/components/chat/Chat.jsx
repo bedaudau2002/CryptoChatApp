@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./chat.css";
 import EmojiPicker from "emoji-picker-react";
 import {
@@ -14,7 +14,7 @@ import { useUserStore } from "../../lib/userStore";
 import upload from "../../lib/upload";
 import { format } from "timeago.js";
 import E2EE from "@chatereum/react-e2ee";
-
+import { JSEncrypt } from "jsencrypt";
 const Chat = () => {
   const [chat, setChat] = useState([]);
   const [open, setOpen] = useState(false);
@@ -23,7 +23,7 @@ const Chat = () => {
     file: null,
     url: "",
   });
-
+  const [isFileSelected, setIsFileSelected] = useState(false);
   const { currentUser } = useUserStore();
   const { chatId, user, isCurrentUserBlocked, isReceiverBlocked } =
     useChatStore();
@@ -58,6 +58,81 @@ const Chat = () => {
     }
   };
 
+  // let privateKey;
+  // const handleFileSelect = (event) => {
+  //   const file = event.target.files[0];
+  //   const reader = new FileReader();
+  //   reader.onload = (event) => {
+  //     privateKey = event.target.result;
+  //     // Use privateKey for encryption...
+  //     setIsFileSelected(true);
+  //   };
+  //   reader.readAsText(file);
+  //   //console.log(privateKey);
+  // };
+  // function decryptText(encrypted) {
+  //   try {
+  //     const decrypted = E2EE.decryptForPlaintext({
+  //       encrypted_text: encrypted,
+  //       private_key: privateKey,
+  //     });
+  //     console.log(decrypted);
+  //     return decrypted;
+  //   } catch (err) {
+  //     console.log(err);
+  //     return "";
+  //   }
+  // }
+  const [privateKey, setPrivateKey] = useState(null);
+  const handleFileSelect = async (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      setPrivateKey(event.target.result);
+      await setIsFileSelected(true);
+      //await decryptText(message.text);
+      console.log(privateKey);
+    };
+    reader.readAsText(file);
+  };
+  //let privateKey;
+  // const handleFileSelect = async (event) => {
+  //   const file = event.target.files[0];
+  //   const reader = new FileReader();
+
+  //   reader.onload = function (event) {
+  //     const privateKeyString = event.target.result;
+  //     console.log(privateKeyString);
+  //     // Convert the private key to an ArrayBuffer
+  //     const privateKeyBuffer = new TextEncoder().encode(privateKeyString);
+  //     privateKey = window.crypto.subtle.importKey(
+  //       "pkcs8",
+  //       privateKeyBuffer,
+  //       {
+  //         name: "RSA-OAEP",
+  //         hash: { name: "SHA-256" },
+  //       },
+  //       false,
+  //       ["decrypt"],
+  //     );
+  //   };
+
+  //   reader.readAsText(file);
+  // };
+
+  async function decryptText(encrypted) {
+    try {
+      const decrypted = await E2EE.decryptForPlaintext({
+        encrypted_text: encrypted,
+        private_key: privateKey,
+      });
+      console.log(decrypted);
+      return decrypted;
+    } catch (err) {
+      console.error("Decryption failed:", err);
+    }
+  }
+
   const handleSend = async () => {
     if (text === "") return;
 
@@ -70,6 +145,10 @@ const Chat = () => {
 
       const userIDs = [currentUser.id, user.id];
 
+      // const encText = await E2EE.encryptPlaintext({
+      //   public_key: currentUser.public_key, // Use the current user's public key
+      //   plain_text: text,
+      // });
       userIDs.forEach(async (id) => {
         const userChatsRef = doc(db, "userchats", id);
         const userChatsSnapshot = await getDoc(userChatsRef);
@@ -116,7 +195,15 @@ const Chat = () => {
       setText("");
     }
   };
+  function ChatMessage({ message }) {
+    const [decryptedText, setDecryptedText] = useState("");
 
+    useEffect(() => {
+      decryptText(message.text).then(setDecryptedText);
+    }, [message]);
+
+    return <p>{decryptedText}</p>;
+  }
   return (
     <div className="chat">
       <div className="top">
@@ -130,33 +217,80 @@ const Chat = () => {
         <div className="icons">
           <img src="./phone.png" alt="" />
           <img src="./video.png" alt="" />
-          <img src="./info.png" alt="" />
+          <label htmlFor="file">
+            <img src="./info.png" alt="" />
+          </label>
+          <input
+            type="file"
+            id="file"
+            style={{ display: "none" }}
+            onChange={handleFileSelect}
+          />
+          {/* <input type="file" onChange={handleFileSelect}>
+    </div>        <img src="./info.png" alt="" />
+          </input> */}
         </div>
       </div>
-      <div className="center">
-        {chat?.messages?.map((message, index) => (
-          <div
-            className={
-              message.senderId === currentUser?.id ? "message own" : "message"
-            }
-            key={index}
-          >
-            <div className="texts">
-              {message.img && <img src={message.img} alt="" />}
-              <p>{message.text.cipher_text}</p>
-              <span>{format(message.createdAt.toDate())}</span>
+      {isFileSelected ? (
+        <div className="center">
+          {chat?.messages?.map((message, index) => (
+            <div
+              className={
+                message.senderId === currentUser?.id ? "message own" : "message"
+              }
+              key={index}
+            >
+              <div className="texts">
+                {message.img && <img src={message.img} alt="" />}
+                {/* <p>{message.text.cipher_text}</p> */}
+                <p>{console.log(privateKey)}</p>
+                <ChatMessage message={message} />
+                <span>{format(message.createdAt.toDate())}</span>
+              </div>
             </div>
-          </div>
-        ))}
-        {img.url && (
-          <div className="message own">
-            <div className="texts">
-              <img src={img.url} alt="" />
+          ))}
+          {img.url && (
+            <div className="message own">
+              <div className="texts">
+                <img src={img.url} alt="" />
+              </div>
             </div>
-          </div>
-        )}
-        <div ref={endRef}></div>
-      </div>
+          )}
+          <div ref={endRef}></div>
+        </div>
+      ) : (
+        <div className="center">
+          {chat?.messages?.map((message, index) => (
+            <div
+              className={
+                message.senderId === currentUser?.id ? "message own" : "message"
+              }
+              key={index}
+            >
+              <div className="texts">
+                {message.img && <img src={message.img} alt="" />}
+                <p>{message.text.cipher_text}</p>
+                {/* <p>{console.log(message)}</p> */}
+                {/* <p>{decryptText(message.text)}</p> */}
+                {/* {isFileSelected ? (
+                <p>{decryptText(message[5].text)}</p>
+              ) : (
+                <p>{message.text.cipher_text}</p>
+              )} */}
+                <span>{format(message.createdAt.toDate())}</span>
+              </div>
+            </div>
+          ))}
+          {img.url && (
+            <div className="message own">
+              <div className="texts">
+                <img src={img.url} alt="" />
+              </div>
+            </div>
+          )}
+          <div ref={endRef}></div>
+        </div>
+      )}
       <div className="bottom">
         <div className="icons">
           <label htmlFor="file">
