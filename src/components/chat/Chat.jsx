@@ -58,31 +58,6 @@ const Chat = () => {
     }
   };
 
-  // let privateKey;
-  // const handleFileSelect = (event) => {
-  //   const file = event.target.files[0];
-  //   const reader = new FileReader();
-  //   reader.onload = (event) => {
-  //     privateKey = event.target.result;
-  //     // Use privateKey for encryption...
-  //     setIsFileSelected(true);
-  //   };
-  //   reader.readAsText(file);
-  //   //console.log(privateKey);
-  // };
-  // function decryptText(encrypted) {
-  //   try {
-  //     const decrypted = E2EE.decryptForPlaintext({
-  //       encrypted_text: encrypted,
-  //       private_key: privateKey,
-  //     });
-  //     console.log(decrypted);
-  //     return decrypted;
-  //   } catch (err) {
-  //     console.log(err);
-  //     return "";
-  //   }
-  // }
   const [privateKey, setPrivateKey] = useState(null);
   const handleFileSelect = async (event) => {
     const file = event.target.files[0];
@@ -95,30 +70,6 @@ const Chat = () => {
     };
     reader.readAsText(file);
   };
-  //let privateKey;
-  // const handleFileSelect = async (event) => {
-  //   const file = event.target.files[0];
-  //   const reader = new FileReader();
-
-  //   reader.onload = function (event) {
-  //     const privateKeyString = event.target.result;
-  //     console.log(privateKeyString);
-  //     // Convert the private key to an ArrayBuffer
-  //     const privateKeyBuffer = new TextEncoder().encode(privateKeyString);
-  //     privateKey = window.crypto.subtle.importKey(
-  //       "pkcs8",
-  //       privateKeyBuffer,
-  //       {
-  //         name: "RSA-OAEP",
-  //         hash: { name: "SHA-256" },
-  //       },
-  //       false,
-  //       ["decrypt"],
-  //     );
-  //   };
-
-  //   reader.readAsText(file);
-  // };
 
   async function decryptText(encrypted) {
     try {
@@ -145,10 +96,6 @@ const Chat = () => {
 
       const userIDs = [currentUser.id, user.id];
 
-      // const encText = await E2EE.encryptPlaintext({
-      //   public_key: currentUser.public_key, // Use the current user's public key
-      //   plain_text: text,
-      // });
       userIDs.forEach(async (id) => {
         const userChatsRef = doc(db, "userchats", id);
         const userChatsSnapshot = await getDoc(userChatsRef);
@@ -226,9 +173,6 @@ const Chat = () => {
             style={{ display: "none" }}
             onChange={handleFileSelect}
           />
-          {/* <input type="file" onChange={handleFileSelect}>
-    </div>        <img src="./info.png" alt="" />
-          </input> */}
         </div>
       </div>
       {isFileSelected ? (
@@ -242,7 +186,7 @@ const Chat = () => {
             >
               <div className="texts">
                 {message.img && <img src={message.img} alt="" />}
-                {/* <p>{message.text.cipher_text}</p> */}
+
                 <p>{console.log(privateKey)}</p>
                 <ChatMessage message={message} />
                 <span>{format(message.createdAt.toDate())}</span>
